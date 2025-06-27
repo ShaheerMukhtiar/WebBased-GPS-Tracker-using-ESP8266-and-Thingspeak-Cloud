@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThingSpeak Data Display</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAkr0CzDtEPoW2zQYeAvny9tWDtnaxKW4M&callback=initMap"
+        async defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+            background-color: #115152; /* Dark background color */
+            color: #fff;
+        }
+
+        h2 {
+            color: #d9e8e8;
+            font-family:  'Courier New', monospace;
+; /* Change font to Benchrift */
+            font-size: 70px; /* Increase font size for Geo Tracer heading */
+        }
+
+        h3 {
+            text-align: center; /* Align heading center */
+            color: #d9e8e8; /* Black heading color */
+            margin-bottom: 10px; /* Add space below the heading */
+        }
+        #data-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #readings-container {
+            background-color: #115152; /* White background color */
+            padding: 20px; /* Increased padding for the readings division */
+            border-radius: 10px; /* Add rounded corners */
+            text-align: center; /* Align text left */
+            width: 60%; /* Increase width of the readings division */
+            display: flex;
+            justify-content: space-between; /* Add space between longitude and latitude */
+        }
+
+        .data-box {
+            flex: 1; /* Equal width for latitude and longitude boxes */
+        }
+
+        #data-list-lat,
+        #data-list-lng {
+    list-style: none;
+    padding: 0;
+    color: #c7cccb;
+    /* Black text color for contrast */
+    padding: 8px;
+    font-family: 'Arial Black', sans-serif;
+    /* Change font to Arial Black */
+    font-weight: bold;
+    /* Make the font bold */
+    font-size: 16px;
+    /* Increase the font size */
+    margin: 0;
+    /* Remove default margin for list elements */
+}
+
+
+        #map {
+            height: 500px; /* Larger map height */
+            width: 100%; /* Adjusted map width */
+            border-radius: 20px; /* Make the map round */
+            margin-bottom: 20px;
+            background-color: #5F9EA0; /* Match the dark background color */
+        }
+        #logo {
+            width: 180px; /* Adjust the width as needed */
+            height: auto; /* Maintain aspect ratio */
+            margin-left: 1100px; /* Create space on the right */
+            
+        }
+    </style>
+
+</head>
+<body>
+
+    <div id="data-container">
+        <img id="logo" src="https://play-lh.googleusercontent.com/XHCRm4g2G7rgfUDxm3W78w1p3agqf-rnlBKBQuu7m-3BIXMqQDts2miEeKemFaf5cQ=w240-h480-rw" alt="Geo Tracker Logo">
+
+        <h2>Geo Tracer</h2>
+        <div id="map"></div>
+        <div id="readings-container">
+            <div class="data-box">
+                <h3>Latitude</h3>
+                <ul id="data-list-lat"></ul>
+            </div>
+            <div class="data-box">
+                <h3>Longitude</h3>
+                <ul id="data-list-lng"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// Replace YOUR_CHANNEL_ID, YOUR_READ_API_KEY, and YOUR_GOOGLE_MAPS_API_KEY with your ThingSpeak channel ID, read API key, and Google Maps API key
+const channelID = '2396587';
+const apiKey = 'KAZDKZYZEJVW0VIN';
+const apiEndpoint = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${apiKey}&results=3`; // Display only 3 readings
+
+// Variables to store the last values
+let lat;
+let lng;
+
+// Function to fetch and display data
+function fetchData() {
+    $.getJSON(apiEndpoint, function(data) {
+        // Check if the data was successfully retrieved
+        if (data && data.feeds && data.feeds.length > 0) {
+            // Clear existing data
+            $('#data-list-lat').empty();
+            $('#data-list-lng').empty();
+
+            // Loop through the latest three feeds and display data
+            for (let i = Math.max(data.feeds.length - 3, 0); i < data.feeds.length; i++) {
+                const feed = data.feeds[i];
+                const entryLat = `<li>${feed.field1}</li>`;
+                const entryLng = `<li>${feed.field2}</li>`;
+                $('#data-list-lat').append(entryLat);
+                $('#data-list-lng').append(entryLng);
+            }
+
+            // Update the map with the new coordinates
+            updateMap(data.feeds[data.feeds.length - 1].field1, data.feeds[data.feeds.length - 1].field2);
+        } else {
+            // Display an error message if data retrieval fails
+            $('#data-list-lat').html('<li>Error retrieving data from ThingSpeak</li>');
+            $('#data-list-lng').html('<li>Error retrieving data from ThingSpeak</li>');
+        }
+    });
+}
+
+// Function to initialize the map
+function initMap() 
+{
+    // Initial map center (you can adjust this)
+    const mapCenter = { lat: 0, lng: 0 };
+
+    // Create a new map
+    const map = new google.maps.Map(document.getElementById('map'), {
+        center: mapCenter,
+        zoom: 10
+    });
+}
+
+// Function to update the map with new coordinates
+function updateMap(newLat, newLng) {
+    const mapCenter = { lat: parseFloat(newLat), lng: parseFloat(newLng) };
+
+    // Get the map and marker
+    const map = new google.maps.Map(document.getElementById('map'), {
+        center: mapCenter,
+        zoom: 18
+    });
+
+    const marker = new google.maps.Marker({
+        position: mapCenter,
+        map: map,
+        title: 'Current Location'
+    });
+}
+
+// Fetch data on page load
+$(document).ready(function() {
+    fetchData();
+
+    // Refresh data every 10 seconds (adjust as needed)
+    setInterval(fetchData, 10000);
+});
+</script>
+
+</body>
+</html>
