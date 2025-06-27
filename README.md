@@ -1,5 +1,5 @@
 # WebBased-GPS-Tracker-using-ESP8266-and-Thingspeak-Cloud
-# GEO TRACER: Real-Time GPS Tracking System
+## GEO TRACER: Real-Time GPS Tracking System
 
 This project details the development of a real-time GPS tracking system utilizing IoT technologies. The system seamlessly integrates embedded hardware with cloud platforms and a dynamic web dashboard to provide accurate and user-friendly geolocation monitoring. It captures real-time geolocation data via a GPS module and visualizes it on an interactive Google Maps interface, powered by JavaScript.
 
