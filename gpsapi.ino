@@ -12,11 +12,12 @@ static const int RXPin = D2, TXPin = D1;
 static const uint32_t GPSBaud = 9600;
 
 // repace your wifi username and password
-const char* ssid     = "SMK";
-const char* password = "sheri123";
+const char* ssid     = "<Replace-your-wifi-Name-here>";
+const char* password = "<Replace-your-wifi-password-here>";
 
+// You can find write API key on your thingspeak Channel
 unsigned long myChannelNumber = 2396587;
-const char * myWriteAPIKey = "1DPCG1KSGJPD3LAF";
+const char * myWriteAPIKey = "<Replace-your-WriteAPI-key-here>";
 
 // The TinyGPS++ object
 TinyGPSPlus gps;
